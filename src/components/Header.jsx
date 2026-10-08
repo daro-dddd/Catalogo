@@ -35,26 +35,19 @@ export default function Header() {
         {/* Top Branding & Main Controls Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between py-3 gap-4 border-b border-blue-50 dark:border-slate-800/80">
           
-          {/* Notebook Logo & Title */}
-          <div className="flex items-center space-x-3">
-            <img 
-              src="/pwa-192x192.png" 
-              alt="Catálogo Técnico" 
-              className="w-10 h-10 rounded-xl shadow-md shadow-blue-600/20 object-cover border border-blue-400/30" 
-            />
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-black text-lg tracking-tight text-blue-900 dark:text-blue-400">
-                  CREACIÓN Y GESTIÓN DE CATÁLOGOS TÉCNICOS
-                </span>
-                <span className="text-[10px] px-2.5 py-0.5 font-bold rounded-md bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                  PWA & NATIVE DESKTOP v4.0
-                </span>
-              </div>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                Administración, Maquetación y Consulta de Fichas Técnicas e Instalaciones
-              </p>
+          {/* Title & Branding */}
+          <div>
+            <div className="flex items-center space-x-2">
+              <span className="font-black text-lg tracking-tight text-blue-900 dark:text-blue-400">
+                CREACIÓN Y GESTIÓN DE CATÁLOGOS TÉCNICOS
+              </span>
+              <span className="text-[10px] px-2.5 py-0.5 font-bold rounded-md bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                PWA & NATIVE DESKTOP v4.0
+              </span>
             </div>
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              Administración, Maquetación y Consulta de Fichas Técnicas e Instalaciones
+            </p>
           </div>
 
           {/* Top Actions: Theme Toggle & Add Product */}
