@@ -24,7 +24,9 @@ export default function MasterPriceTable() {
     deleteMasterPriceRow,
     applyMassPriceAdjustment,
     products,
-    categories
+    categories,
+    showConfirm,
+    showToast
   } = useCatalog();
 
   const [tableSearch, setTableSearch] = useState('');
@@ -230,7 +232,7 @@ export default function MasterPriceTable() {
   const handleCreateNewRow = (e) => {
     e.preventDefault();
     if (!newRow.sku.trim()) {
-      alert('Por favor especifica un código SKU único.');
+      showToast('Por favor especifica un código SKU único.', 'warning');
       return;
     }
     addMasterPriceRow({
@@ -238,6 +240,7 @@ export default function MasterPriceTable() {
       price: parseFloat(newRow.price) || 0
     });
     setIsAddRowOpen(false);
+    showToast(`SKU ${newRow.sku} agregado a la Lista Maestra`, 'success');
     setNewRow({
       sku: '',
       code: '20-F',
@@ -611,9 +614,16 @@ export default function MasterPriceTable() {
                       <td className="p-2.5 text-center">
                         <button
                           onClick={() => {
-                            if (window.confirm(`¿Eliminar la variante SKU ${row.sku}?`)) {
-                              deleteMasterPriceRow(row.sku);
-                            }
+                            showConfirm({
+                              title: 'Eliminar SKU de Lista Maestra',
+                              message: `¿Estás seguro de eliminar la clave SKU "${row.sku}" de la Lista Maestra de Precios?`,
+                              confirmText: 'Sí, Eliminar SKU',
+                              type: 'danger',
+                              onConfirm: () => {
+                                deleteMasterPriceRow(row.sku);
+                                showToast(`SKU ${row.sku} eliminado de la lista`, 'info');
+                              }
+                            });
                           }}
                           className="p-1 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded hover:bg-blue-50 dark:hover:bg-slate-700 transition"
                           title="Eliminar SKU"

@@ -26,7 +26,8 @@ export default function ProductModal() {
     addMasterPriceRow,
     updateMasterPriceValue,
     updateMasterPriceRow,
-    categories 
+    categories,
+    showToast 
   } = useCatalog();
 
   const [formData, setFormData] = useState({
@@ -209,9 +210,9 @@ export default function ProductModal() {
     setFormData(prev => ({ ...prev, variants: updatedVariants }));
 
     if (createdCount > 0 || linkedCount > 0) {
-      alert(`Asociación Automática Completada:\n\n- Se vincularon ${linkedCount} SKUs existentes de la Lista Maestra.\n- Se crearon ${createdCount} nuevas claves SKU en la Lista Maestra.`);
+      showToast(`Asociación completada: ${linkedCount} SKUs vinculados y ${createdCount} nuevos creados en Lista Maestra.`, 'success');
     } else {
-      alert('Todas las medidas ya están correctamente asociadas.');
+      showToast('Todas las medidas ya están correctamente asociadas.', 'info');
     }
   };
 
@@ -273,14 +274,14 @@ export default function ProductModal() {
   };
 
   // Submit Handler
-  // Submit Handler
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.catalogCode.trim() || !formData.title.trim()) {
-      alert('Por favor completa el código de catálogo y título de la ficha.');
+      showToast('Por favor completa el código de catálogo y título de la ficha.', 'warning');
       return;
     }
     saveProduct(formData);
+    showToast('Ficha técnica guardada con éxito', 'success');
   };
 
   return (

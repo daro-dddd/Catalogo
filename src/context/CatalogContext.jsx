@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { INITIAL_PRODUCTS, INITIAL_MASTER_PRICES, INITIAL_CATEGORIES } from '../data/initialData';
+import ConfirmModal from '../components/ConfirmModal';
+import ToastNotification from '../components/ToastNotification';
 
 const CatalogContext = createContext();
 
@@ -62,10 +64,36 @@ export function CatalogProvider({ children }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todas las Categorías');
 
-  // Modals state
+  // Modals & Custom UI Popups state
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null); // null for create, object for edit
   const [lightboxImage, setLightboxImage] = useState(null); // { url, title }
+  const [confirmConfig, setConfirmConfig] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 3500);
+  };
+
+  const showConfirm = ({ title, message, confirmText, cancelText, type = 'danger', onConfirm }) => {
+    setConfirmConfig({
+      title: title || '¿Confirmar Acción?',
+      message,
+      confirmText: confirmText || 'Confirmar',
+      cancelText: cancelText || 'Cancelar',
+      type,
+      onConfirm: () => {
+        if (onConfirm) onConfirm();
+        setConfirmConfig(null);
+      },
+      onCancel: () => {
+        setConfirmConfig(null);
+      }
+    });
+  };
 
   // Sync theme class to html
   useEffect(() => {
@@ -218,9 +246,17 @@ export function CatalogProvider({ children }) {
   };
 
   const deleteProduct = (id) => {
-    if (window.confirm('¿Estás seguro de eliminar esta caja / ficha técnica del catálogo?')) {
-      setProducts(prev => prev.filter(p => p.id !== id));
-    }
+    const prod = products.find(p => p.id === id);
+    showConfirm({
+      title: 'Eliminar Ficha Técnica',
+      message: `¿Estás seguro de eliminar la ficha técnica "${prod?.title || 'seleccionada'}" del catálogo?`,
+      confirmText: 'Sí, Eliminar',
+      type: 'danger',
+      onConfirm: () => {
+        setProducts(prev => prev.filter(p => p.id !== id));
+        showToast('Ficha técnica eliminada del catálogo', 'info');
+      }
+    });
   };
 
   const duplicateProduct = (id) => {
@@ -233,6 +269,7 @@ export function CatalogProvider({ children }) {
         title: `${target.title} (Copia Instancia)`
       };
       setProducts(prev => [duplicated, ...prev]);
+      showToast(`Ficha "${target.title}" duplicada con éxito`, 'success');
     }
   };
 
@@ -287,24 +324,38 @@ export function CatalogProvider({ children }) {
       masterPrices: [...masterPrices]
     };
     setVersions(prev => [newSnapshot, ...prev]);
-    alert(`¡Versión "${newSnapshot.versionName}" guardada en el historial con éxito!`);
+    showToast(`¡Versión "${newSnapshot.versionName}" guardada con éxito!`, 'success');
   };
 
   const restoreVersionSnapshot = (snapshotId) => {
     const target = versions.find(v => v.id === snapshotId);
     if (target) {
-      if (window.confirm(`¿Restaurar los productos y precios de la "${target.versionName}"? Los datos actuales serán reemplazados.`)) {
-        setProducts(target.products);
-        setMasterPrices(target.masterPrices);
-        alert(`¡Catálogo restaurado a la ${target.versionName}!`);
-      }
+      showConfirm({
+        title: 'Restaurar Versión del Catálogo',
+        message: `¿Deseas restaurar los productos y precios a la "${target.versionName}"? Los datos actuales no guardados serán reemplazados.`,
+        confirmText: 'Restaurar Versión',
+        type: 'warning',
+        onConfirm: () => {
+          setProducts(target.products);
+          setMasterPrices(target.masterPrices);
+          showToast(`¡Catálogo restaurado a la ${target.versionName}!`, 'success');
+        }
+      });
     }
   };
 
   const deleteVersionSnapshot = (snapshotId) => {
-    if (window.confirm('¿Eliminar esta versión guardada del historial?')) {
-      setVersions(prev => prev.filter(v => v.id !== snapshotId));
-    }
+    const target = versions.find(v => v.id === snapshotId);
+    showConfirm({
+      title: 'Eliminar Versión del Historial',
+      message: `¿Estás seguro de eliminar el respaldo "${target?.versionName || ''}" del historial de versiones?`,
+      confirmText: 'Sí, Eliminar Versión',
+      type: 'danger',
+      onConfirm: () => {
+        setVersions(prev => prev.filter(v => v.id !== snapshotId));
+        showToast('Versión eliminada del historial', 'info');
+      }
+    });
   };
 
   // Export / Import Data
@@ -323,6 +374,7 @@ export function CatalogProvider({ children }) {
     a.download = `catalogo_tecnico_backup_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    showToast('Respaldo del catálogo descargado en formato JSON', 'success');
   };
 
   const importDataJSON = (fileContent) => {
@@ -332,20 +384,27 @@ export function CatalogProvider({ children }) {
         setMasterPrices(parsed.masterPrices);
         setProducts(parsed.products);
         if (parsed.versions) setVersions(parsed.versions);
-        alert('¡Datos del catálogo e historial importados con éxito!');
+        showToast('¡Datos del catálogo e historial importados con éxito!', 'success');
       } else {
-        alert('El archivo JSON no tiene la estructura válida de catálogo.');
+        showToast('El archivo JSON no tiene una estructura válida de catálogo.', 'error');
       }
     } catch (e) {
-      alert('Error al leer el archivo JSON: ' + e.message);
+      showToast('Error al leer el archivo JSON: ' + e.message, 'error');
     }
   };
 
   const resetToDefaults = () => {
-    if (window.confirm('¿Deseas restablecer todos los productos y precios a los datos iniciales de catálogo?')) {
-      setMasterPrices(INITIAL_MASTER_PRICES);
-      setProducts(INITIAL_PRODUCTS);
-    }
+    showConfirm({
+      title: 'Restablecer Catálogo Inicial',
+      message: '¿Deseas restablecer todos los productos y precios a los datos iniciales de fábrica?',
+      confirmText: 'Sí, Restablecer Todo',
+      type: 'warning',
+      onConfirm: () => {
+        setMasterPrices(INITIAL_MASTER_PRICES);
+        setProducts(INITIAL_PRODUCTS);
+        showToast('Catálogo restablecido a valores iniciales', 'info');
+      }
+    });
   };
 
   // Dynamic categories list derived from initial categories + custom categories added by user
@@ -396,12 +455,16 @@ export function CatalogProvider({ children }) {
     setLightboxImage,
     exportDataJSON,
     importDataJSON,
-    resetToDefaults
+    resetToDefaults,
+    showConfirm,
+    showToast
   };
 
   return (
     <CatalogContext.Provider value={value}>
       {children}
+      <ConfirmModal config={confirmConfig} onClose={() => setConfirmConfig(null)} />
+      <ToastNotification toast={toast} onClose={() => setToast(null)} />
     </CatalogContext.Provider>
   );
 }

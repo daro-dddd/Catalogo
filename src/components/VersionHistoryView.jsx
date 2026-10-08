@@ -10,7 +10,8 @@ export default function VersionHistoryView() {
     deleteVersionSnapshot,
     products,
     masterPrices,
-    setActiveTab
+    setActiveTab,
+    showToast
   } = useCatalog();
 
   const [versionName, setVersionName] = useState('');
@@ -19,7 +20,7 @@ export default function VersionHistoryView() {
   const handleCreateSnapshot = (e) => {
     e.preventDefault();
     if (!versionName.trim()) {
-      alert('Por favor asigna un nombre a la versión (ej. Versión 2.0 - Nuevos Precios CPVC).');
+      showToast('Por favor asigna un nombre a la versión (ej. Versión 2.0 - Nuevos Precios CPVC).', 'warning');
       return;
     }
     createVersionSnapshot(versionName, versionNotes);
