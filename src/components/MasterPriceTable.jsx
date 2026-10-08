@@ -148,7 +148,7 @@ export default function MasterPriceTable() {
 
       row.height = 22;
       const isEven = index % 2 === 1;
-      const rowBgColor = isEven ? 'FFEFEF6FF' : 'FFFFFFFF'; // Light Pastel Blue Zebra Striping
+      const rowBgColor = isEven ? 'FFF0F7FF' : 'FFFFFFFF'; // Light Pastel Blue Zebra Striping
 
       row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
         // Base background fill
