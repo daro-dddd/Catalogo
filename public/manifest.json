@@ -1,0 +1,18 @@
+{
+  "short_name": "Catálogo Técnico",
+  "name": "Catálogo Técnico de Conexiones e Instalaciones",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#080d1a",
+  "theme_color": "#2563eb",
+  "display": "standalone",
+  "orientation": "any",
+  "description": "Sistema de Gestión y Maquetación de Fichas Técnicas, Listas Maestras y Cotizaciones Centralizadas."
+}
