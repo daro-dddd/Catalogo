@@ -35,11 +35,13 @@ export default function Header() {
         {/* Top Branding & Main Controls Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between py-3 gap-4 border-b border-blue-50 dark:border-slate-800/80">
           
-          {/* Single Pastel Blue Logo & Title */}
+          {/* Notebook Logo & Title */}
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-600/20">
-              <Box className="w-6 h-6" />
-            </div>
+            <img 
+              src="/pwa-192x192.png" 
+              alt="Catálogo Técnico" 
+              className="w-10 h-10 rounded-xl shadow-md shadow-blue-600/20 object-cover border border-blue-400/30" 
+            />
             <div>
               <div className="flex items-center space-x-2">
                 <span className="font-black text-lg tracking-tight text-blue-900 dark:text-blue-400">
