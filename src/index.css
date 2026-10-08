@@ -40,26 +40,63 @@
 
 /* Print maquetación catalog styles */
 @media print {
-  body {
+  @page {
+    margin: 0.8cm;
+    size: auto;
+  }
+
+  header, 
+  nav, 
+  aside,
+  footer,
+  .no-print, 
+  .print\:hidden,
+  [class*="no-print"] {
+    display: none !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+  }
+
+  body, html {
     background-color: #ffffff !important;
     color: #000000 !important;
     font-size: 11pt;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-  .no-print {
-    display: none !important;
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
   }
+
   .print-page {
     page-break-after: always;
     break-after: page;
     box-shadow: none !important;
-    border: 1px solid #cbd5e1 !important;
+    border: none !important;
     margin: 0 !important;
-    padding: 1.5cm !important;
+    padding: 0 !important;
     width: 100% !important;
+    max-width: 100% !important;
   }
+
   .print-grid {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
     gap: 12px !important;
   }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }
+

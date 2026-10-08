@@ -29,7 +29,7 @@ export default function Header() {
   } = useCatalog();
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-blue-100 dark:border-slate-800 transition-colors shadow-xs">
+    <header className="no-print print:hidden sticky top-0 z-30 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-blue-100 dark:border-slate-800 transition-colors shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Top Branding & Main Controls Bar */}

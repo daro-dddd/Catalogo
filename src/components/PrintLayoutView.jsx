@@ -25,6 +25,9 @@ export default function PrintLayoutView() {
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [isSaved, setIsSaved] = useState(false);
 
+  // Header display mode for print layout: 'none' (solo productos), 'title' (solo título corto), 'full' (encabezado completo)
+  const [headerMode, setHeaderMode] = useState('none');
+
   // Sync local ordered products when filteredProducts or category changes
   useEffect(() => {
     setLocalOrderedProducts(filteredProducts);
@@ -93,7 +96,7 @@ export default function PrintLayoutView() {
     <div className="space-y-6">
       
       {/* Top Toolbar (Hidden on print) */}
-      <div className="no-print bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-blue-100 dark:border-slate-800 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="no-print print:hidden bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-blue-100 dark:border-slate-800 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
             <Printer className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -107,6 +110,20 @@ export default function PrintLayoutView() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {/* Header Mode Selector */}
+          <div className="flex items-center space-x-1 bg-blue-50/70 dark:bg-slate-800 p-1 rounded-xl border border-blue-100 dark:border-slate-700">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 pl-2 pr-1">Encabezado PDF:</span>
+            <select
+              value={headerMode}
+              onChange={(e) => setHeaderMode(e.target.value)}
+              className="px-2.5 py-1 text-xs font-bold bg-white dark:bg-[#0f172a] border border-blue-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 cursor-pointer focus:outline-none"
+            >
+              <option value="none">Solo Productos (Sin Título)</option>
+              <option value="title">Solo Título Corto</option>
+              <option value="full">Encabezado Completo</option>
+            </select>
+          </div>
+
           {/* Category Filter */}
           <select
             value={selectedCategory}
@@ -144,17 +161,27 @@ export default function PrintLayoutView() {
       </div>
 
       {/* Printable Sheet Container */}
-      <div className="print-page bg-white text-slate-900 p-6 sm:p-10 rounded-xl shadow-lg border border-slate-200 mx-auto max-w-5xl transition-all">
+      <div className="print-page bg-white text-slate-900 p-6 sm:p-10 rounded-xl shadow-lg border border-slate-200 mx-auto max-w-5xl transition-all print:p-0 print:border-none print:shadow-none print:w-full print:max-w-none">
         
-        {/* Printable Header: Clean Title & Connections Header */}
-        <div className="border-b-4 border-blue-600 pb-4 mb-6">
-          <h1 className="font-black text-xl sm:text-2xl tracking-tight text-blue-950 uppercase">
-            CATÁLOGO TÉCNICO DE CONEXIONES E INSTALACIONES
-          </h1>
-          <h2 className="text-xs sm:text-sm font-bold text-blue-700 uppercase tracking-wide mt-1">
-            LISTA COMPLETA: {selectedCategory === 'Todas las Categorías' ? 'TODOS LOS MATERIALES Y CONEXIONES' : selectedCategory.toUpperCase()}
-          </h2>
-        </div>
+        {/* Printable Header: Optional based on headerMode */}
+        {headerMode === 'full' && (
+          <div className="border-b-4 border-blue-600 pb-4 mb-6">
+            <h1 className="font-black text-xl sm:text-2xl tracking-tight text-blue-950 uppercase">
+              CATÁLOGO TÉCNICO DE CONEXIONES E INSTALACIONES
+            </h1>
+            <h2 className="text-xs sm:text-sm font-bold text-blue-700 uppercase tracking-wide mt-1">
+              LISTA COMPLETA: {selectedCategory === 'Todas las Categorías' ? 'TODOS LOS MATERIALES Y CONEXIONES' : selectedCategory.toUpperCase()}
+            </h2>
+          </div>
+        )}
+
+        {headerMode === 'title' && (
+          <div className="border-b-2 border-blue-600 pb-2 mb-5">
+            <h1 className="font-black text-lg sm:text-xl tracking-tight text-blue-950 uppercase">
+              {selectedCategory === 'Todas las Categorías' ? 'CATÁLOGO TÉCNICO DE PRODUCTOS' : `CATÁLOGO TÉCNICO - ${selectedCategory.toUpperCase()}`}
+            </h1>
+          </div>
+        )}
 
         {/* Catalog Items Grid */}
         <div className="print-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -169,7 +196,7 @@ export default function PrintLayoutView() {
             >
               
               {/* Card Header with Reorder Controls (Hidden on Print) */}
-              <div className="no-print flex items-center justify-between pb-2 mb-2 border-b border-slate-200 bg-blue-50/50 px-2 py-1 rounded-lg">
+              <div className="no-print print:hidden flex items-center justify-between pb-2 mb-2 border-b border-slate-200 bg-blue-50/50 px-2 py-1 rounded-lg">
                 <div className="flex items-center space-x-1 text-slate-400 cursor-grab active:cursor-grabbing">
                   <GripVertical className="w-4 h-4" />
                   <span className="text-[10px] font-bold text-slate-500 uppercase">Posición #{index + 1}</span>
