@@ -1,5 +1,7 @@
-const CACHE_NAME = 'catalogo-pwa-v3';
+const CACHE_NAME = 'catalogo-pwa-v4';
 const ASSETS_TO_CACHE = [
+  '/',
+  '/index.html',
   '/manifest.json',
   '/favicon.svg',
   '/pwa-192x192.png',
@@ -7,15 +9,15 @@ const ASSETS_TO_CACHE = [
   '/apple-touch-icon.png'
 ];
 
+// Install: Cache essential assets and skip waiting immediately
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
   );
   self.skipWaiting();
 });
 
+// Activate: Delete ALL old caches so stale JS/CSS are cleared immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -31,40 +33,23 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Network-First for HTML documents to guarantee instant updates on Vercel deployments
+// Fetch: Network-First strategy for ALL requests so Vercel deployments are served immediately
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  const isHtml = event.request.headers.get('accept')?.includes('text/html');
-
-  if (isHtml) {
-    event.respondWith(
-      fetch(event.request)
-        .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const copy = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          }
-          return networkResponse;
-        })
-        .catch(() => caches.match(event.request))
-    );
-    return;
-  }
-
-  // Cache-First with background revalidation for static assets
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
+    fetch(event.request)
+      .then((networkResponse) => {
+        // If network request succeeds, update the cache with fresh copy
         if (networkResponse && networkResponse.status === 200) {
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, networkResponse.clone());
-          });
+          const copy = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         }
         return networkResponse;
-      }).catch(() => {});
-
-      return cachedResponse || fetchPromise;
-    })
+      })
+      .catch(() => {
+        // If network fails (offline mode), serve from cache
+        return caches.match(event.request);
+      })
   );
 });
