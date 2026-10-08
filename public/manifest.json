@@ -1,16 +1,27 @@
 {
-  "short_name": "Catálogo Técnico",
+  "short_name": "Catálogo",
   "name": "Catálogo Técnico de Conexiones e Instalaciones",
   "icons": [
     {
+      "src": "/pwa-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
       "src": "/favicon.svg",
       "type": "image/svg+xml",
-      "sizes": "192x192 512x512",
-      "purpose": "any maskable"
+      "sizes": "any"
     }
   ],
   "start_url": "/",
-  "background_color": "#080d1a",
+  "background_color": "#0b132b",
   "theme_color": "#2563eb",
   "display": "standalone",
   "orientation": "any",
