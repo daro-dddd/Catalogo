@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { useCatalog } from '../context/CatalogContext';
-import { Calculator, Plus, Trash2, Printer, Copy, Check, FileText, ShoppingCart } from 'lucide-react';
+import { Calculator, Plus, Trash2, Printer, Copy, Check, ShoppingCart, Edit2 } from 'lucide-react';
 
 export default function QuoteCalculatorView() {
-  const { products, masterPrices, masterPricesMap } = useCatalog();
+  const { masterPrices, masterPricesMap } = useCatalog();
   
   const [selectedSku, setSelectedSku] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [quoteItems, setQuoteItems] = useState([]);
   const [clientName, setClientName] = useState('Cliente Administrativo / Proyecto Interno');
+  const [quoteTitle, setQuoteTitle] = useState('COTIZACIÓN Y PRESUPUESTO DE MATERIALES');
   const [discountPct, setDiscountPct] = useState(0);
   const [copied, setCopied] = useState(false);
 
@@ -64,14 +65,14 @@ export default function QuoteCalculatorView() {
   const formatMoney = (val) => `$${val.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const handleCopySummary = () => {
-    let text = `COTIZACIÓN DE PRODUCTOS INDUSTRIALES NACOBRE\nCliente: ${clientName}\nFecha: ${new Date().toLocaleDateString()}\n\n`;
+    let text = `${quoteTitle.toUpperCase()}\nCliente: ${clientName}\nFecha: ${new Date().toLocaleDateString('es-MX')}\n\n`;
     quoteItems.forEach(item => {
       text += `- [${item.code}] ${item.name} (${item.variant}) x ${item.qty} ${item.unit}: ${formatMoney(item.unitPrice * item.qty)}\n`;
     });
-    text += `\nSubtotal: ${formatMoney(subtotal)}`;
+    text += `\nSubtotal Bruto: ${formatMoney(subtotal)}`;
     if (discountPct > 0) text += `\nDescuento (${discountPct}%): -${formatMoney(discountAmount)}`;
-    text += `\nIVA (16%): ${formatMoney(iva)}`;
-    text += `\nTOTAL ESTIMADO: ${formatMoney(total)}`;
+    text += `\nI.V.A. (16%): ${formatMoney(iva)}`;
+    text += `\nTOTAL ESTIMADO (MXN): ${formatMoney(total)}`;
 
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -81,8 +82,8 @@ export default function QuoteCalculatorView() {
   return (
     <div className="space-y-6">
       
-      {/* Header */}
-      <div className="bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-blue-100 dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Top Header Toolbar (Hidden on Print) */}
+      <div className="no-print print:hidden bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-blue-100 dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
             <Calculator className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -98,7 +99,7 @@ export default function QuoteCalculatorView() {
         <div className="flex items-center space-x-2">
           <button
             onClick={handleCopySummary}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 text-blue-900 dark:text-blue-300 font-bold text-xs border border-blue-100 dark:border-slate-700 transition"
+            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 text-blue-900 dark:text-blue-300 font-bold text-xs border border-blue-100 dark:border-slate-700 transition"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-blue-600" /> : <Copy className="w-3.5 h-3.5 text-blue-500" />}
             <span>{copied ? '¡Copiado!' : 'Copiar Texto'}</span>
@@ -106,7 +107,7 @@ export default function QuoteCalculatorView() {
           
           <button
             onClick={() => window.print()}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow-xs"
+            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow-md"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>Imprimir Cotización</span>
@@ -116,8 +117,8 @@ export default function QuoteCalculatorView() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Left Column: Item Selector & Client Setup */}
-        <div className="lg:col-span-1 space-y-4">
+        {/* Left Column: Item Selector & Client Setup (Hidden on Print) */}
+        <div className="no-print print:hidden lg:col-span-1 space-y-4">
           
           <div className="bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-blue-100 dark:border-slate-800 shadow-xs space-y-3">
             <h3 className="font-bold text-xs text-slate-900 dark:text-slate-100 border-b border-blue-100 dark:border-slate-800 pb-2">
@@ -197,51 +198,69 @@ export default function QuoteCalculatorView() {
 
         </div>
 
-        {/* Right Column: Quote Table & Totals */}
-        <div className="lg:col-span-2 space-y-4">
+        {/* Right Column: Clean Printable Quote Sheet */}
+        <div className="lg:col-span-2 space-y-4 print:w-full print:col-span-3 print:m-0 print:p-0">
           
-          <div className="bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-blue-100 dark:border-slate-800 shadow-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-blue-100 dark:border-slate-800 pb-3">
-              <div className="flex items-center space-x-2">
-                <ShoppingCart className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <h3 className="font-extrabold text-sm text-slate-900 dark:text-slate-100">
-                  Desglose de Cotización
-                </h3>
+          <div className="bg-white dark:bg-[#0f172a] p-4 sm:p-6 rounded-2xl border border-blue-100 dark:border-slate-800 shadow-xs space-y-4 print:border-none print:shadow-none print:p-0 print:bg-white text-slate-900">
+            
+            {/* Editable Printable Quote Header */}
+            <div className="border-b-2 border-blue-600 pb-3 mb-4 space-y-1.5">
+              <div className="relative group/edit-title">
+                <input
+                  type="text"
+                  value={quoteTitle}
+                  onChange={(e) => setQuoteTitle(e.target.value)}
+                  placeholder="Título de la Cotización..."
+                  className="w-full font-black text-lg sm:text-xl tracking-tight text-blue-950 uppercase bg-transparent hover:bg-blue-50/70 focus:bg-blue-50 border border-transparent hover:border-blue-300 focus:border-blue-500 rounded-lg px-2 py-1 outline-none transition cursor-text print:border-none print:bg-transparent print:p-0 print:text-black"
+                  title="Haz clic para personalizar el título de la cotización"
+                />
+                <span className="no-print print:hidden absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-600 dark:text-blue-400 opacity-0 group-hover/edit-title:opacity-100 pointer-events-none transition flex items-center space-x-1 bg-white/95 dark:bg-slate-800 px-2.5 py-1 rounded-md shadow-xs border border-blue-200 dark:border-slate-700">
+                  <Edit2 className="w-3 h-3" />
+                  <span>Clic para editar título</span>
+                </span>
               </div>
-              <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
-                {quoteItems.length} partidas
-              </span>
+
+              <div className="flex flex-wrap items-center justify-between text-xs text-slate-600 dark:text-slate-400 px-2 pt-1 border-t border-dashed border-blue-100 dark:border-slate-800 gap-2 print:text-black">
+                <div className="flex items-center space-x-1">
+                  <span className="font-bold text-slate-500 uppercase text-[10px] print:text-black">Cliente / Destino:</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-200 print:text-black">{clientName || 'Cliente General'}</span>
+                </div>
+                <div className="flex items-center space-x-4 text-[11px] font-mono print:text-black">
+                  <span><strong>Fecha:</strong> {new Date().toLocaleDateString('es-MX')}</span>
+                  <span><strong>Partidas:</strong> {quoteItems.length}</span>
+                </div>
+              </div>
             </div>
 
             {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
-                <thead className="bg-blue-50/70 dark:bg-[#090e17] text-slate-700 dark:text-slate-300 uppercase font-bold text-[10px] border-b border-blue-100 dark:border-slate-800">
+                <thead className="bg-blue-50/70 dark:bg-[#090e17] print:bg-slate-100 text-slate-700 dark:text-slate-300 print:text-black uppercase font-bold text-[10px] border-b border-blue-100 dark:border-slate-800 print:border-slate-300">
                   <tr>
                     <th className="p-2">Catálogo</th>
                     <th className="p-2">Producto / Variante</th>
                     <th className="p-2 text-center">Cant.</th>
                     <th className="p-2 text-right">Precio Unit.</th>
                     <th className="p-2 text-right">Importe</th>
-                    <th className="p-2 text-center"></th>
+                    <th className="p-2 text-center no-print print:hidden"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-blue-50 dark:divide-slate-800/80">
+                <tbody className="divide-y divide-blue-50 dark:divide-slate-800/80 print:divide-slate-200">
                   {quoteItems.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="p-8 text-center text-slate-400">
+                      <td colSpan={6} className="p-8 text-center text-slate-400 print:text-slate-600">
                         No has agregado ningún producto a la cotización aún.
                       </td>
                     </tr>
                   ) : (
                     quoteItems.map((item, idx) => (
                       <tr key={idx} className="hover:bg-blue-50/50 dark:hover:bg-blue-950/30">
-                        <td className="p-2 font-bold text-blue-700 dark:text-blue-400">
+                        <td className="p-2 font-bold text-blue-700 dark:text-blue-400 print:text-black">
                           {item.code}
                         </td>
                         <td className="p-2">
-                          <div className="font-semibold text-slate-800 dark:text-slate-200">{item.name}</div>
-                          <div className="text-[10px] text-slate-500">{item.variant}</div>
+                          <div className="font-semibold text-slate-800 dark:text-slate-200 print:text-black">{item.name}</div>
+                          <div className="text-[10px] text-slate-500 print:text-slate-700">{item.variant}</div>
                         </td>
                         <td className="p-2 text-center">
                           <input
@@ -249,16 +268,17 @@ export default function QuoteCalculatorView() {
                             min="1"
                             value={item.qty}
                             onChange={(e) => updateQty(idx, e.target.value)}
-                            className="w-14 p-1 text-center font-bold bg-blue-50/60 dark:bg-[#080d1a] border border-blue-100 dark:border-slate-800 rounded-lg text-xs"
+                            className="no-print print:hidden w-14 p-1 text-center font-bold bg-blue-50/60 dark:bg-[#080d1a] border border-blue-100 dark:border-slate-800 rounded-lg text-xs"
                           />
+                          <span className="hidden print:inline font-bold print:text-black">{item.qty}</span>
                         </td>
-                        <td className="p-2 text-right font-mono">
+                        <td className="p-2 text-right font-mono print:text-black">
                           {formatMoney(item.unitPrice)}
                         </td>
-                        <td className="p-2 text-right font-mono font-bold text-slate-900 dark:text-slate-100">
+                        <td className="p-2 text-right font-mono font-bold text-slate-900 dark:text-slate-100 print:text-black">
                           {formatMoney(item.unitPrice * item.qty)}
                         </td>
-                        <td className="p-2 text-center">
+                        <td className="p-2 text-center no-print print:hidden">
                           <button
                             onClick={() => removeItem(idx)}
                             className="text-slate-400 hover:text-rose-600 p-1"
@@ -275,24 +295,24 @@ export default function QuoteCalculatorView() {
 
             {/* Totals Breakdown */}
             {quoteItems.length > 0 && (
-              <div className="bg-blue-50/50 dark:bg-[#080d1a] p-4 rounded-xl border border-blue-100 dark:border-slate-800 space-y-2 text-xs">
-                <div className="flex justify-between text-slate-600 dark:text-slate-400">
+              <div className="bg-blue-50/50 dark:bg-[#080d1a] print:bg-slate-50 p-4 rounded-xl border border-blue-100 dark:border-slate-800 print:border-slate-300 space-y-2 text-xs print:text-black">
+                <div className="flex justify-between text-slate-600 dark:text-slate-400 print:text-black">
                   <span>Subtotal Bruto:</span>
                   <span className="font-mono">{formatMoney(subtotal)}</span>
                 </div>
                 {discountPct > 0 && (
-                  <div className="flex justify-between text-blue-700 dark:text-blue-300 font-bold">
+                  <div className="flex justify-between text-blue-700 dark:text-blue-300 font-bold print:text-black">
                     <span>Descuento Aplicado ({discountPct}%):</span>
                     <span className="font-mono">-{formatMoney(discountAmount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-slate-600 dark:text-slate-400">
+                <div className="flex justify-between text-slate-600 dark:text-slate-400 print:text-black">
                   <span>I.V.A. (16%):</span>
                   <span className="font-mono">{formatMoney(iva)}</span>
                 </div>
-                <div className="flex justify-between font-black text-sm text-slate-900 dark:text-slate-100 pt-2 border-t border-blue-100 dark:border-slate-800">
+                <div className="flex justify-between font-black text-sm text-slate-900 dark:text-slate-100 print:text-black pt-2 border-t border-blue-100 dark:border-slate-800 print:border-slate-300">
                   <span>TOTAL ESTIMADO (MXN):</span>
-                  <span className="font-mono text-blue-700 dark:text-blue-400 text-base">{formatMoney(total)}</span>
+                  <span className="font-mono text-blue-700 dark:text-blue-400 print:text-black text-base">{formatMoney(total)}</span>
                 </div>
               </div>
             )}
@@ -306,4 +326,5 @@ export default function QuoteCalculatorView() {
     </div>
   );
 }
+
 
