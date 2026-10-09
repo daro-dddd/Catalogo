@@ -616,12 +616,15 @@ export default function ProductModal() {
                       </div>
                     </div>
 
-                    {/* 3. Libro / Categoría Select */}
+                    {/* 3. Libro / Categoría Select & Custom Input */}
                     <div className="w-full xl:w-1/4">
                       <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-0.5">
                         ¿A qué Libro se asocia?
                       </label>
-                      <select
+                      <input
+                        type="text"
+                        list={`book-suggestions-${index}`}
+                        placeholder="Escribe o elige Libro..."
                         value={displayBook}
                         onChange={(e) => {
                           const selectedBook = e.target.value;
@@ -630,12 +633,13 @@ export default function ProductModal() {
                             updateMasterPriceRow(v.sku, { category: selectedBook });
                           }
                         }}
-                        className="w-full p-1.5 bg-white dark:bg-[#0f172a] border border-blue-200 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white cursor-pointer"
-                      >
+                        className="w-full p-1.5 bg-white dark:bg-[#0f172a] border border-blue-200 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                      />
+                      <datalist id={`book-suggestions-${index}`}>
                         {categories.filter(c => c !== 'Todas las Categorías').map(cat => (
-                          <option key={cat} value={cat}>Libro: {cat}</option>
+                          <option key={cat} value={cat} />
                         ))}
-                      </select>
+                      </datalist>
                     </div>
 
                     {/* 4. SKU Lista Maestra Sync Select */}

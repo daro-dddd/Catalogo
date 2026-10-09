@@ -412,6 +412,11 @@ export function CatalogProvider({ children }) {
     const set = new Set(INITIAL_CATEGORIES);
     products.forEach(p => {
       if (p.category) set.add(p.category);
+      if (p.variants && Array.isArray(p.variants)) {
+        p.variants.forEach(v => {
+          if (v.book) set.add(v.book);
+        });
+      }
     });
     masterPrices.forEach(mp => {
       if (mp.category) set.add(mp.category);
