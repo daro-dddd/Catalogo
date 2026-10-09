@@ -1,9 +1,10 @@
-const CACHE_NAME = 'catalogo-pwa-v4';
+const CACHE_NAME = 'catalogo-pwa-v5';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/favicon.svg',
+  '/favicon.ico',
+  '/app-icon.png',
   '/pwa-192x192.png',
   '/pwa-512x512.png',
   '/apple-touch-icon.png'
