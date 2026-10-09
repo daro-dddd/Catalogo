@@ -6,7 +6,9 @@ import {
   ArrowLeft, 
   ArrowRight, 
   Save, 
-  Check 
+  Check,
+  Edit2,
+  Type
 } from 'lucide-react';
 
 export default function PrintLayoutView() {
@@ -26,12 +28,38 @@ export default function PrintLayoutView() {
   const [isSaved, setIsSaved] = useState(false);
 
   // Header display mode for print layout: 'none' (solo productos), 'title' (solo título corto), 'full' (encabezado completo)
-  const [headerMode, setHeaderMode] = useState('none');
+  const [headerMode, setHeaderMode] = useState('title');
+
+  // Editable custom title and subtitle for the printed sheet
+  const [customTitle, setCustomTitle] = useState(() => 
+    selectedCategory === 'Todas las Categorías' 
+      ? 'CATÁLOGO TÉCNICO DE PRODUCTOS' 
+      : `CATÁLOGO TÉCNICO - ${selectedCategory.toUpperCase()}`
+  );
+  const [customSubtitle, setCustomSubtitle] = useState(() => 
+    selectedCategory === 'Todas las Categorías' 
+      ? 'LISTA COMPLETA: TODOS LOS MATERIALES Y CONEXIONES' 
+      : `LISTA COMPLETA: ${selectedCategory.toUpperCase()}`
+  );
 
   // Sync local ordered products when filteredProducts or category changes
   useEffect(() => {
     setLocalOrderedProducts(filteredProducts);
   }, [filteredProducts, selectedCategory]);
+
+  // Update default titles when category changes
+  useEffect(() => {
+    setCustomTitle(
+      selectedCategory === 'Todas las Categorías' 
+        ? 'CATÁLOGO TÉCNICO DE PRODUCTOS' 
+        : `CATÁLOGO TÉCNICO - ${selectedCategory.toUpperCase()}`
+    );
+    setCustomSubtitle(
+      selectedCategory === 'Todas las Categorías' 
+        ? 'LISTA COMPLETA: TODOS LOS MATERIALES Y CONEXIONES' 
+        : `LISTA COMPLETA: ${selectedCategory.toUpperCase()}`
+    );
+  }, [selectedCategory]);
 
   const handlePrint = () => {
     window.print();
@@ -105,7 +133,7 @@ export default function PrintLayoutView() {
             </h2>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Arrastra las fichas o usa las flechas para <strong>acomodar y guardar el orden de impresión</strong>.
+            Personaliza el <strong>título de la hoja</strong>, acomoda fichas y exporta a PDF.
           </p>
         </div>
 
@@ -123,6 +151,21 @@ export default function PrintLayoutView() {
               <option value="full">Encabezado Completo</option>
             </select>
           </div>
+
+          {/* Quick Custom Title Field in Toolbar */}
+          {headerMode !== 'none' && (
+            <div className="flex items-center space-x-1.5 bg-blue-50/70 dark:bg-slate-800 p-1 px-2 rounded-xl border border-blue-100 dark:border-slate-700">
+              <Type className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+              <input
+                type="text"
+                value={customTitle}
+                onChange={(e) => setCustomTitle(e.target.value)}
+                placeholder="Título de la Hoja..."
+                className="w-48 px-2 py-0.5 text-xs font-bold bg-white dark:bg-[#0f172a] border border-blue-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500"
+                title="Editar título impreso"
+              />
+            </div>
+          )}
 
           {/* Category Filter */}
           <select
@@ -163,23 +206,57 @@ export default function PrintLayoutView() {
       {/* Printable Sheet Container */}
       <div className="print-page bg-white text-slate-900 p-6 sm:p-10 rounded-xl shadow-lg border border-slate-200 mx-auto max-w-5xl transition-all print:p-0 print:border-none print:shadow-none print:w-full print:max-w-none">
         
-        {/* Printable Header: Optional based on headerMode */}
+        {/* Printable Header: Fully Editable based on headerMode */}
         {headerMode === 'full' && (
-          <div className="border-b-4 border-blue-600 pb-4 mb-6">
-            <h1 className="font-black text-xl sm:text-2xl tracking-tight text-blue-950 uppercase">
-              CATÁLOGO TÉCNICO DE CONEXIONES E INSTALACIONES
-            </h1>
-            <h2 className="text-xs sm:text-sm font-bold text-blue-700 uppercase tracking-wide mt-1">
-              LISTA COMPLETA: {selectedCategory === 'Todas las Categorías' ? 'TODOS LOS MATERIALES Y CONEXIONES' : selectedCategory.toUpperCase()}
-            </h2>
+          <div className="border-b-4 border-blue-600 pb-3 mb-6 space-y-1">
+            <div className="relative group/edit-title">
+              <input
+                type="text"
+                value={customTitle}
+                onChange={(e) => setCustomTitle(e.target.value)}
+                placeholder="Escribe el título de la hoja..."
+                className="w-full font-black text-xl sm:text-2xl tracking-tight text-blue-950 uppercase bg-transparent hover:bg-blue-50/70 focus:bg-blue-50 border border-transparent hover:border-blue-300 focus:border-blue-500 rounded-lg px-2 py-1 outline-none transition cursor-text print:border-none print:bg-transparent print:p-0 print:text-black"
+                title="Haz clic para personalizar el título de la hoja de impresión"
+              />
+              <span className="no-print print:hidden absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-600 opacity-0 group-hover/edit-title:opacity-100 pointer-events-none transition flex items-center space-x-1 bg-white/95 px-2.5 py-1 rounded-md shadow-xs border border-blue-200">
+                <Edit2 className="w-3 h-3" />
+                <span>Clic para editar título</span>
+              </span>
+            </div>
+
+            <div className="relative group/edit-sub">
+              <input
+                type="text"
+                value={customSubtitle}
+                onChange={(e) => setCustomSubtitle(e.target.value)}
+                placeholder="Escribe el subtítulo de la hoja..."
+                className="w-full text-xs sm:text-sm font-bold text-blue-700 uppercase tracking-wide bg-transparent hover:bg-blue-50/70 focus:bg-blue-50 border border-transparent hover:border-blue-300 focus:border-blue-500 rounded-lg px-2 py-0.5 outline-none transition cursor-text print:border-none print:bg-transparent print:p-0 print:text-black"
+                title="Haz clic para personalizar el subtítulo de la hoja de impresión"
+              />
+              <span className="no-print print:hidden absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-600 opacity-0 group-hover/edit-sub:opacity-100 pointer-events-none transition flex items-center space-x-1 bg-white/95 px-2.5 py-1 rounded-md shadow-xs border border-blue-200">
+                <Edit2 className="w-3 h-3" />
+                <span>Editar subtítulo</span>
+              </span>
+            </div>
           </div>
         )}
 
         {headerMode === 'title' && (
           <div className="border-b-2 border-blue-600 pb-2 mb-5">
-            <h1 className="font-black text-lg sm:text-xl tracking-tight text-blue-950 uppercase">
-              {selectedCategory === 'Todas las Categorías' ? 'CATÁLOGO TÉCNICO DE PRODUCTOS' : `CATÁLOGO TÉCNICO - ${selectedCategory.toUpperCase()}`}
-            </h1>
+            <div className="relative group/edit-title">
+              <input
+                type="text"
+                value={customTitle}
+                onChange={(e) => setCustomTitle(e.target.value)}
+                placeholder="Escribe el título de la hoja..."
+                className="w-full font-black text-lg sm:text-xl tracking-tight text-blue-950 uppercase bg-transparent hover:bg-blue-50/70 focus:bg-blue-50 border border-transparent hover:border-blue-300 focus:border-blue-500 rounded-lg px-2 py-1 outline-none transition cursor-text print:border-none print:bg-transparent print:p-0 print:text-black"
+                title="Haz clic para personalizar este título de impresión"
+              />
+              <span className="no-print print:hidden absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-600 opacity-0 group-hover/edit-title:opacity-100 pointer-events-none transition flex items-center space-x-1 bg-white/95 px-2.5 py-1 rounded-md shadow-xs border border-blue-200">
+                <Edit2 className="w-3 h-3" />
+                <span>Clic para editar título</span>
+              </span>
+            </div>
           </div>
         )}
 
@@ -192,11 +269,11 @@ export default function PrintLayoutView() {
               onDragStart={(e) => handleDragStart(e, index)}
               onDragOver={(e) => handleDragOver(e, index)}
               onDrop={(e) => handleDrop(e, index)}
-              className="group border border-slate-300 hover:border-blue-400 rounded-xl p-3 flex flex-col justify-between bg-slate-50/50 break-inside-avoid shadow-2xs transition relative"
+              className="group border border-slate-300 hover:border-blue-400 rounded-xl p-3 flex flex-col justify-start bg-slate-50/50 break-inside-avoid shadow-2xs transition relative"
             >
               
               {/* Card Header with Reorder Controls (Hidden on Print) */}
-              <div className="no-print print:hidden flex items-center justify-between pb-2 mb-2 border-b border-slate-200 bg-blue-50/50 px-2 py-1 rounded-lg">
+              <div className="no-print print:hidden flex items-center justify-between pb-2 mb-2 border-b border-slate-200 bg-blue-50/50 px-2 py-1 rounded-lg flex-shrink-0">
                 <div className="flex items-center space-x-1 text-slate-400 cursor-grab active:cursor-grabbing">
                   <GripVertical className="w-4 h-4" />
                   <span className="text-[10px] font-bold text-slate-500 uppercase">Posición #{index + 1}</span>
@@ -224,31 +301,31 @@ export default function PrintLayoutView() {
               </div>
 
               {/* Product Info */}
-              <div>
+              <div className="flex flex-col flex-shrink-0">
                 {/* Catalog Code */}
                 <div className="text-xs font-black text-blue-700 uppercase tracking-tight">
                   {product.catalogCode}
                 </div>
                 
                 {/* Product Title */}
-                <div className="text-xs font-bold text-slate-900 leading-snug line-clamp-2 mt-0.5">
+                <div className="text-xs font-bold text-slate-900 leading-snug line-clamp-2 mt-0.5 h-8 flex items-center">
                   {product.title}
                 </div>
 
                 {/* Photo */}
-                <div className="my-2 h-32 w-full bg-white border border-slate-200 rounded-lg overflow-hidden flex items-center justify-center p-2">
+                <div className="my-2 h-32 w-full bg-white border border-slate-200 rounded-lg overflow-hidden flex items-center justify-center p-2 flex-shrink-0">
                   <img src={product.imageUrl} alt={product.title} className="max-h-full max-w-full object-contain" />
                 </div>
               </div>
 
               {/* Variants & Prices List */}
-              <div className="mt-2 text-[11px] pt-2 border-t border-slate-200">
-                <div className="font-bold text-[9px] uppercase text-slate-400 mb-1 flex justify-between">
+              <div className="mt-2 text-[11px] pt-2 border-t border-slate-200 flex-grow flex flex-col justify-start">
+                <div className="font-bold text-[9px] uppercase text-slate-400 mb-1 flex justify-between flex-shrink-0">
                   <span>Medida / Variante</span>
                   <span>Precio Lista</span>
                 </div>
                 
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 flex-shrink-0">
                   {(product.variants || []).map((v, idx) => {
                     const masterItem = masterPricesMap[v.sku];
                     const price = v.price !== undefined && v.price !== null && v.price !== '' 

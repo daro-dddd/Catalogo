@@ -139,7 +139,7 @@ export default function ProductCard({ product }) {
 
       {/* Lower Sub-Box: Compact Measures Table & Dynamic Master Prices */}
       <div className="p-3 flex-grow flex flex-col justify-start">
-        <div className="bg-blue-50/40 dark:bg-[#080d1a] p-2.5 rounded-xl border border-blue-100 dark:border-slate-800 flex-grow flex flex-col justify-between space-y-2">
+        <div className="bg-blue-50/40 dark:bg-[#080d1a] p-2.5 rounded-xl border border-blue-100 dark:border-slate-800 flex-grow flex flex-col justify-start space-y-2">
           
           {/* TEMPLATE A: Conexiones (Tabla de medidas compacta en 1 o 2 columnas) */}
           {product.templateType === 'template-a' && (

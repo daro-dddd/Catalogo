@@ -14,6 +14,7 @@ function createWindow() {
     minWidth: 1024,
     minHeight: 680,
     title: 'Catálogo Técnico & Instalaciones',
+    icon: path.join(__dirname, '../public/app-icon.png'),
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
