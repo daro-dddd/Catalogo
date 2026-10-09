@@ -10,6 +10,7 @@ export default function QuoteCalculatorView() {
   const [quoteItems, setQuoteItems] = useState([]);
   const [clientName, setClientName] = useState('Cliente Administrativo / Proyecto Interno');
   const [quoteTitle, setQuoteTitle] = useState('COTIZACIÓN Y PRESUPUESTO DE MATERIALES');
+  const [disclaimerText, setDisclaimerText] = useState('* NOTA: Este documento es únicamente un presupuesto/cotización de carácter informativo. No representa un comprobante fiscal ni factura. Los precios y existencias están sujetos a cambios sin previo aviso.');
   const [discountPct, setDiscountPct] = useState(0);
   const [copied, setCopied] = useState(false);
 
@@ -316,6 +317,17 @@ export default function QuoteCalculatorView() {
                 </div>
               </div>
             )}
+
+            {/* Legal Disclaimer Footer */}
+            <div className="pt-3 border-t border-slate-200 dark:border-slate-800 print:border-slate-300 text-[10px] text-slate-500 dark:text-slate-400 print:text-black italic">
+              <input
+                type="text"
+                value={disclaimerText}
+                onChange={(e) => setDisclaimerText(e.target.value)}
+                className="w-full text-center bg-transparent hover:bg-blue-50/50 focus:bg-blue-50 border border-transparent hover:border-blue-200 focus:border-blue-400 rounded px-2 py-1 outline-none transition cursor-text print:border-none print:bg-transparent print:p-0 print:text-black italic"
+                title="Haz clic para personalizar la leyenda de la cotización"
+              />
+            </div>
 
           </div>
 
